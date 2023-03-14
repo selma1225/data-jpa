@@ -70,6 +70,16 @@ public interface MemberRepository extends JpaRepository<Member, Long>, MemberRep
     @Lock(LockModeType.PESSIMISTIC_WRITE) //JPA가 제공하는 기능임.
     List<Member> findLockByUsername(String username);
 
+//    @Query( nativeQuery = true,
+//            value = "select m from Member m where m.username like %:username% order by m.id desc ")
+    List<Member> findByUsernameContainsIgnoreCase(@Param("username") String username);
 
-
+    /**
+     * @Override
+     *     public List<Member> findByUsernameContainsIgnoreCase(String username) {
+     *         return em.createQuery("select m from Member m where m.username like :username order by m.id desc ", Member.class)
+     *                 .setParameter("username", username)
+     *                 .getResultList();
+     *     }
+     */
 }

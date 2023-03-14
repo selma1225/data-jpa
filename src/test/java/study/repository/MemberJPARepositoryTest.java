@@ -100,7 +100,7 @@ class MemberJPARepositoryTest {
     }
 
     @Test
-    public void buldUpdate(){
+    public void bulkUpdate(){
         memberJpaRepository.save(new Member(("member1"), 10));
         memberJpaRepository.save(new Member(("member2"), 17));
         memberJpaRepository.save(new Member(("member3"), 18));

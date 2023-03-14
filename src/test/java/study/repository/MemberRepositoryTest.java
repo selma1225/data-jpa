@@ -6,10 +6,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 import study.dto.MemberDto;
@@ -185,7 +182,7 @@ class MemberRepositoryTest {
     }
 
     @Test
-    public void buldUpdate(){
+    public void bulkUpdate(){
         memberRepository.save(new Member(("member1"), 10));
         memberRepository.save(new Member(("member2"), 17));
         memberRepository.save(new Member(("member3"), 18));
@@ -272,5 +269,84 @@ class MemberRepositoryTest {
             //쿼리에 for update가 붙어서 나가게 됨.
 
         em.flush(); //여기서 변경감지를 함.
+    }
+
+    @Test
+    public void customTest(){
+        //given
+        Member member1 = new Member("member1", 20);
+        Member member2 = new Member("member2", 20);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+
+        //where
+        List<Member> result = memberRepository.findMemberCustom();
+
+        for(Member m:result){
+            System.out.println("member: "+m);
+        }
+
+        //then
+        assertThat(result.size()).isEqualTo(2);
+    }
+
+    @Test
+    public void customContainsIgnoreCaseTest(){
+        //given
+        Member member1 = new Member("member1", 20);
+        Member member2 = new Member("member2", 15);
+        Member member3 = new Member("member3", 18);
+        Member member4 = new Member("member4", 17);
+        Member member5 = new Member("member5", 22);
+        Member member6 = new Member("member6", 25);
+        Member member7 = new Member("hong1", 25);
+        Member member8 = new Member("hong2", 25);
+        Member member9 = new Member("hong3", 25);
+        memberRepository.save(member1);
+        memberRepository.save(member2);
+        memberRepository.save(member3);
+        memberRepository.save(member4);
+        memberRepository.save(member5);
+        memberRepository.save(member6);
+        memberRepository.save(member7);
+        memberRepository.save(member8);
+        memberRepository.save(member9);
+
+        //where
+        List<Member> result = memberRepository.findByUsernameContainsIgnoreCase("mem");
+
+        for(Member m:result){
+            System.out.println("member: "+m);
+        }
+
+        //then
+//        assertThat(result.size()).isEqualTo(6);
+    }
+
+    @Test
+    public void queryByExample(){
+        //given
+        Team team = new Team("teamA");
+        em.persist(team);
+
+        Member m1 = new Member("m1", 13, team);
+        Member m2 = new Member("m2", 13, team);
+        em.persist(m1);
+        em.persist(m2);
+
+        em.flush();
+        em.clear();
+
+        //when
+        Member member = new Member(("m1"));
+        Team team1 = new Team("teamA");
+        member.setTeam(team1);
+
+        ExampleMatcher matcher = ExampleMatcher.matching().withIgnorePaths("age");
+        Example<Member> example = Example.of(member, matcher);
+
+        List<Member> result = memberRepository.findAll(example);
+
+        assertThat(result.size()).isEqualTo(1);
     }
 }

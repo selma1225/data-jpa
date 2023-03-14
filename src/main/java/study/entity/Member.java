@@ -13,7 +13,8 @@ import org.springframework.context.annotation.Lazy;
 )
 @ToString(of = {"id", "username", "age"})
 @NamedEntityGraph(name = "Member.all", attributeNodes = @NamedAttributeNode("team"))
-public class Member {
+public class Member extends BaseEntity{
+//public class Member extends JpaBaseEntity{ //순수 JPA일 때
 
     @Id
     @GeneratedValue
